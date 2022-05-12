@@ -5,16 +5,19 @@ from rest_framework import viewsets
 from apps.bursary.models import Bursary
 from apps.courses.models import Course, CoursesPay
 from apps.invoices.models import Invoice
+from apps.invoices.serializers import InvoiceSerializer
 
 from apps.users.models import Users
-from apps.users.serializers import UserSerializer
+from apps.users.serializers import UserExportSerializer, UserSerializer
 from datetime import datetime
 from apps.courses.utils import courses_pre, courses_trans, prices
 
 import qrcode
 import os
-
+from django.http import HttpResponse
 from django.conf import settings
+
+import xlsxwriter
 
 def create_qr(text, name):
     img = qrcode.make(text)
@@ -130,3 +133,103 @@ class UserViewSet(viewsets.ModelViewSet):
         user_serializer = UserSerializer(user)
         
         return Response(user_serializer.data, status=status.HTTP_200_OK)
+    
+class ExcelViewSet(viewsets.ModelViewSet):
+    queryset = Users.objects.all()
+    serializer_class = UserExportSerializer
+    
+    def list(self, request):
+        libro = xlsxwriter.Workbook('users.xls')
+        hoja = libro.add_worksheet()
+        
+        header = [
+            'id', 
+            'nombre', 
+            'apellidos', 
+            'correo electronico',
+            'dirección',
+            'cp',
+            'estado',
+            'municipio o alcaldía',
+            'telefono',
+            'celular',
+            'empresa o institución',
+            'especialidad',
+            'cédula profesional',
+            'cédula de especialidad',
+            'costo de inscripcción',
+            'pago validado',
+            'curso de precongreso',
+            'curso de transcongreso',
+            'nombre o razon social',
+            'rfc',
+            'calle',
+            'numero exterior',
+            'numero interior',
+            'colonia',
+            'cp',
+            'municipio o alcaldia',
+            'estado',
+            'correo de facturacion',
+            'telefono de facturación',
+            'forma de pago',
+            'uso de la factura',
+        ]
+        
+        row = 0
+        col = 0
+        
+        for i in header:
+            hoja.write(row, col, i)
+            col+=1
+        
+        queryset_update = Users.objects.all()
+        
+        data = self.serializer_class(queryset_update, many=True)
+        
+        users_data = []
+        
+        for i in data.data:
+            data_user = []
+            for j in i:
+                data_user.append(i[j])
+                
+            c1, c2 = data_user.pop(-2), data_user.pop(-2)
+            
+            co1 = Course.objects.filter(pk=c1).first().text
+            co2 = Course.objects.filter(pk=c2).first().text
+            
+            invoice_user_id = data_user.pop()
+            data_user.append(co2)
+            data_user.append(co1)
+            
+            if invoice_user_id:
+                invoice = Invoice.objects.filter(pk=invoice_user_id).first()
+                invoice_serializer = InvoiceSerializer(invoice)
+                
+                for i in invoice_serializer.data:
+                    data_user.append(invoice_serializer.data[i])
+                
+            users_data.append(data_user)
+            
+        row = 1
+        col = 0
+            
+        for _user_data in users_data:
+            col = 0
+            for i in _user_data:
+                hoja.write(row, col, i)
+                col+=1
+            row+=1
+        
+        libro.close()
+        
+        file_path = os.getcwd() + '/users.xls'
+        
+        with open(file_path, 'rb') as f:
+           file_data = f.read()
+        
+        response = HttpResponse(file_data, content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response['Content-Disposition'] = 'attachment; filename=usuarios.xls'
+
+        return response
