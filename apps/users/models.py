@@ -39,7 +39,8 @@ class Users(models.Model):
     invoice = models.ForeignKey(
         Invoice, 
         on_delete=models.CASCADE, 
-        null=True
+        null=True,
+        blank=True
     )
     
     def get_full_name(self) -> str:
