@@ -47,7 +47,7 @@ def send_email(email_str: str, context: dict):
                 email_str,
                 'femengi@yahoo.com.mx',
                 'contacto@ole-sfera.com',
-                'franco@ole-sfera.com'
+                'franco@ole-sfera.com',
                 'munozzecuayoel@gmail.com',
             ]
         )
