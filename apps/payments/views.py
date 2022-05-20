@@ -28,8 +28,8 @@ from xhtml2pdf import pisa
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 
-stripe.api_key = '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'
-# stripe.api_key = 'sk_test_51Kw9l2B5zVOhjdF5COg0erWvOMtaTzyvGGIBVfkj47YRQFppz95vQMoAeMb7Htu9AbFsDv0HAnupz6I7YsLbuCFp00IVmqBzpf'
+stripe.api_key = ''
+# stripe.api_key = ''
 
 def send_email(email_str: str, context: dict):
     try:
@@ -163,14 +163,7 @@ def course_payment(request):
         print('Init Amount')
 
         if amount >= 10:
-            # charge = stripe.Charge.create(
-            #     amount=amount,
-            #     currency="mxn",
-            #     description=description,
-            #     source="tok_visa",
-            #     idempotency_key=id,
-            #     api_key='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'
-            # )
+           
             
             customer_stripe = stripe.Customer.create(
                 description=description,
@@ -200,9 +193,6 @@ def course_payment(request):
                 receipt_email=user.email
             )
             
-            # api_key='rk_test_51KqnPcG8JjahQ8bbtZvX1XgrqY8MaqXpiNNB30lxnNUMTWjUIVQ82T4WZePzS8d9BqjnEt3hA1QR5YaE4mvau3MK00Sh6WobP8'
-            # api_key='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'
-
         print('Finish Mount')
 
         course_pre = user.course_pre
