@@ -28,7 +28,7 @@ from xhtml2pdf import pisa
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 
-stripe.api_key = ''
+stripe.api_key = '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'
 # stripe.api_key = ''
 
 def send_email(email_str: str, context: dict):
