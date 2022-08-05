@@ -75,14 +75,10 @@ def buy_courses(request):
 @api_view(['GET'])
 def payment_course_information(request):
     four = CoursesPay.objects.filter(id=4).first()
-    five = CoursesPay.objects.filter(id=5).first()
     id_disables = []
     
     if four.persons >= 16:
         id_disables.append(4)
-        
-    if five.persons >= 16:
-        id_disables.append(5)
     
     return Response({
         'list_disabled': id_disables
