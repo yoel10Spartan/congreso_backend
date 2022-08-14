@@ -192,11 +192,14 @@ class ExcelViewSet(viewsets.ModelViewSet):
             c1, c2 = data_user.pop(-2), data_user.pop(-2)
             
             co1 = ''
+            co2 = ''
 
-            if Course.objects.filter(pk=c1).exists():
+            if Course.objects.filter(pk=c1).exists():  
                 co1 = Course.objects.filter(pk=c1).first().text
+                co2 = Course.objects.filter(pk=c2).first().text
             
             invoice_user_id = data_user.pop()
+            data_user.append(co2)
             data_user.append(co1)
             
             if invoice_user_id:
