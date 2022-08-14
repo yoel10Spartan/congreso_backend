@@ -191,6 +191,9 @@ class ExcelViewSet(viewsets.ModelViewSet):
                 
             c1, c2 = data_user.pop(-2), data_user.pop(-2)
             
+            if Course.objects.filter(pk=c1).exists():
+                continue;
+
             co1 = Course.objects.filter(pk=c1).first().text
             
             invoice_user_id = data_user.pop()
